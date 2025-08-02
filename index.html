@@ -550,7 +550,7 @@ onclick="filterCategory('drama')">Drama</a>
     <img src="https://upload.wikimedia.org/wikipedia/en/d/db/Tomie_manga_cover.jpg" alt="Tomie">
     <h3>Tomie</h3>
   </div>
-  <div class="card anime shonen" onclick="openModal('Takopiii Original Sin', 'um animal que apenas quer ver geral feliz', 'anime')">
+  <div class="card anime shonen" onclick="openModal('Takopiii no Genzai', 'um animal que apenas quer ver geral feliz', 'anime')">
     <img src="https://upload.wikimedia.org/wikipedia/en/4/48/Takopi%27s_Original_Sin_1.png" alt="Takopi's Original Sin">
     <h3>Takopi's Original Sin</h3>
   </div>
@@ -577,7 +577,7 @@ onclick="filterCategory('drama')">Drama</a>
     "Tomie": {
       chapters: {
         1: [
-          "https://i.imgur.com/6yItPDY.jpeg",
+           "https://i.imgur.com/6yItPDY.jpeg",
           "https://i.imgur.com/2ri4PYf.png",
           "https://i.imgur.com/9IjneWd.jpeg",
           "https://i.imgur.com/4sh89zz.jpeg",
@@ -616,6 +616,21 @@ onclick="filterCategory('drama')">Drama</a>
         ]
       }
     }
+  };        
+  const animeData = {
+    "Takopiii no Genzai": {
+      episodes: [
+        { number: 1, id: "x9o1xzu" },
+        { number: 2, id: "x9o257e" },
+        { number: 3, id: "ID_DO_EPISODIO_3" }
+      ]
+    },
+    "OutroAnime": {
+      episodes: [
+        { number: 1, id: "ID_EP1" },
+        { number: 2, id: "ID_EP2" }
+      ]
+    }
   };
 
   function openMangaReader(title, chapter) {
@@ -640,45 +655,30 @@ onclick="filterCategory('drama')">Drama</a>
     document.getElementById('mangaReaderSection').style.display = 'none';
     showMainContent();
   }
-  const animeData = {
-  "Takopiii no Genzai": {
-    episodes: {
-      1: "x9o1xzu", 
-      2: "x9o257e",
-      3: "ID_DO_EPISODIO_3"
-    }
-  },
-  "OutroAnime": {
-    episodes: {
-      1: "ID_EP1",
-      2: "ID_EP2"
-    }
-  }
-};
 
   function playAnimeVideo(dailymotionId) {
-  hideMainContent();
-  const player = document.getElementById('videoPlayerSection');
-  const container = document.getElementById('animeIframeContainer');
-  container.innerHTML = '';
+    hideMainContent();
+    const player = document.getElementById('videoPlayerSection');
+    const container = document.getElementById('animeIframeContainer');
+    container.innerHTML = '';
 
-  const iframe = document.createElement('iframe');
-  iframe.src = `https://geo.dailymotion.com/player.html?video=${dailymotionId}`;
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
-  iframe.style.position = 'absolute';
-  iframe.style.left = '0px';
-  iframe.style.top = '0px';
-  iframe.style.overflow = 'hidden';
-  iframe.style.border = 'none';
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://geo.dailymotion.com/player.html?video=${dailymotionId}`;
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.position = 'absolute';
+    iframe.style.left = '0px';
+    iframe.style.top = '0px';
+    iframe.style.overflow = 'hidden';
+    iframe.style.border = 'none';
 
-  iframe.allowFullscreen = true;
-  iframe.title = 'Dailymotion Video Player';
-  iframe.allow = 'web-share';
+    iframe.allowFullscreen = true;
+    iframe.title = 'Dailymotion Video Player';
+    iframe.allow = 'web-share';
 
-  container.appendChild(iframe);
-  player.style.display = 'flex';
-}
+    container.appendChild(iframe);
+    player.style.display = 'flex';
+  }
 
   function closeVideoPlayer() {
     const player = document.getElementById('videoPlayerSection');
@@ -699,54 +699,56 @@ onclick="filterCategory('drama')">Drama</a>
   }
 
   function openModal(title, description, type) {
-  document.getElementById('modalTitle').innerText = title;
-  document.getElementById('modalDescription').innerText = description;
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalDescription').innerText = description;
 
-  document.getElementById('chaptersSection').style.display = 'none';
-  document.getElementById('episodesSection').style.display = 'none';
+    document.getElementById('chaptersSection').style.display = 'none';
+    document.getElementById('episodesSection').style.display = 'none';
 
-  document.getElementById('mangaReaderSection').style.display = 'none';
-  document.getElementById('videoPlayerSection').style.display = 'none';
+    document.getElementById('mangaReaderSection').style.display = 'none';
+    document.getElementById('videoPlayerSection').style.display = 'none';
 
-  if (type === 'manga') {
-    document.getElementById('chaptersSection').style.display = 'block';
-    const list = document.getElementById('chaptersList');
-    list.innerHTML = '';
-    const chapters = mangaData[title]?.chapters;
-    if (chapters) {
-      Object.keys(chapters).forEach(chapterNum => {
-        const li = document.createElement('li');
-        li.innerText = `Capítulo ${chapterNum}`;
-        li.onclick = () => {
-          closeModal();
-          openMangaReader(title, chapterNum);
-        };
-        list.appendChild(li);
-      });
+    if (type === 'manga') {
+      document.getElementById('chaptersSection').style.display = 'block';
+      const list = document.getElementById('chaptersList');
+      list.innerHTML = '';
+      const chapters = mangaData[title]?.chapters;
+      if (chapters) {
+        Object.keys(chapters).forEach(chapterNum => {
+          const li = document.createElement('li');
+          li.innerText = `Capítulo ${chapterNum}`;
+          li.onclick = () => {
+            closeModal();
+            openMangaReader(title, chapterNum);
+          };
+          list.appendChild(li);
+        });
+      }
     }
-  } else if (type === 'anime') {
-    document.getElementById('episodesSection').style.display = 'block';
-    const list = document.getElementById('episodesList');
-    list.innerHTML = '';
-    // Aqui você coloca cada episódio com seu ID correto:
-    const episodes = [
-      { number: 1, id: 'x9o1xzu' }, // EP 1
-      { number: 2, id: 'x9o257e' }  // EP 2
-    ];
 
-    episodes.forEach(ep => {
-      const li = document.createElement('li');
-      li.innerText = `Episódio ${ep.number}`;
-      li.onclick = () => {
-        closeModal();
-        playAnimeVideo(ep.id); // Vai passar o ID certo pra função!
-      };
-      list.appendChild(li);
-    });
+    if (type === 'anime') {
+      document.getElementById('episodesSection').style.display = 'block';
+      const list = document.getElementById('episodesList');
+      list.innerHTML = '';
+
+      const episodes = animeData[title]?.episodes;
+      if (episodes && episodes.length > 0) {
+        episodes.forEach(ep => {
+          const li = document.createElement('li');
+          li.innerText = `Episódio ${ep.number}`;
+          li.onclick = () => {
+            closeModal();
+            playAnimeVideo(ep.id);
+          };
+          list.appendChild(li);
+        });
+      } else {
+        list.innerHTML = '<li>Nenhum episódio disponível</li>';
+      }
+    }
+
+    document.getElementById('myModal').style.display = 'block';
   }
-
-  document.getElementById('myModal').style.display = 'block';
-}
 
   function closeModal() {
     document.getElementById('myModal').style.display = 'none';
