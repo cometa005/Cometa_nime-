@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>cometa_nime</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    
+    :root {
+      --preto: #000;
+      --lima: #CFFF04;
+      --ciano: #00FFFF;
+      --cinza: #2E2E2E;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--preto);
+      color: var(--lima);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: var(--cinza);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--ciano);
+      box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      margin: 0;
+      color: var(--lima);
+      font-family: 'Bangers', cursive;
+      font-size: 2.5rem;
+      text-shadow: 2px 2px var(--preto), 4px 4px var(--ciano);
+      letter-spacing: 2px;
+    }
+
+    .menu-btn {
+      font-size: 2rem;
+      color: var(--ciano);
+      cursor: pointer;
+      margin-right: 1.5rem;
+      transition: color 0.3s ease;
+    }
+
+    .menu-btn:hover {
+      color: var(--lima);
+    }
+
+    nav a {
+      color: var(--ciano);
+      text-decoration: none;
+      margin-left: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+    }
+    
+    nav a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 100%;
+      height: 2px;
+      background-color: var(--lima);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    nav a:hover {
+      color: var(--lima);
+    }
+    
+    nav a:hover::after {
+      transform: scaleX(1);
+    }
+
+    .sidebar {
+      position: fixed;
+      left: -250px;
+      top: 0;
+      width: 250px;
+      height: 100%;
+      background-color: var(--cinza);
+      padding: 2rem 1.5rem;
+      box-sizing: border-box;
+      border-right: 3px solid var(--ciano);
+      transition: left 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      z-index: 200;
+      overflow-y: auto;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar h3 {
+      color: var(--ciano);
+      margin-top: 0;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 1.2rem;
+      border-bottom: 2px dashed var(--lima);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: var(--lima);
+      text-decoration: none;
+      margin: 1rem 0;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.2s, color 0.2s;
+    }
+
+    .sidebar a:hover {
+      color: var(--ciano);
+      transform: translateX(10px) scale(1.05);
+    }
+
+    .overlay {
+      position: fixed;
+      display: none;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 150;
+      transition: opacity 0.3s ease;
+    }
+
+    .overlay.show {
+      display: block;
+      opacity: 1;
+    }
+    
+    .overlay {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .overlay.show {
+      pointer-events: auto;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: var(--cinza);
+      padding: 1.5rem;
+      border: 3px solid var(--ciano);
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), transparent);
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+    
+    .card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 10px 25px rgba(0, 255, 255, 0.4);
+    }
+    
+    .card img {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 2px solid var(--lima);
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      height: 330px;
+    }
+    
+    .card h3 {
+      margin-top: 1rem;
+      font-family: 'Bangers', cursive;
+      font-size: 1.5rem;
+      text-shadow: 1px 1px var(--preto);
+      color: var(--lima);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 300;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(5px);
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background-color: var(--cinza);
+      margin: 5% auto;
+      padding: 2rem;
+      border: 3px solid var(--ciano);
+      width: 90%;
+      max-width: 700px;
+      border-radius: 15px;
+      color: var(--lima);
+      position: relative;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+      transform: scale(0.9);
+      animation: modalPopUp 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    }
+    
+    @keyframes modalPopUp {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .close {
+      color: var(--ciano);
+      float: right;
+      font-size: 2.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s ease, transform 0.3s ease;
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+    }
+
+    .close:hover {
+      color: var(--lima);
+      transform: rotate(90deg);
+    }
+
+    .modal-content h2 {
+      font-family: 'Bangers', cursive;
+      font-size: 2.5rem;
+      text-shadow: 2px 2px var(--preto);
+      color: var(--lima);
+      margin-top: 0;
+      border-bottom: 2px dashed var(--ciano);
+      padding-bottom: 10px;
+    }
+
+    .modal-content p {
+      font-style: italic;
+      color: var(--ciano);
+    }
+
+    .chapters, .episodes {
+      margin-top: 2rem;
+    }
+    
+    .chapters h3, .episodes h3 {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 1rem;
+      color: var(--lima);
+      border-left: 5px solid var(--ciano);
+      padding-left: 10px;
+    }
+
+    .chapters ul, .episodes ul {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .chapters li, .episodes li {
+      background-color: var(--preto);
+      margin: 0;
+      padding: 12px;
+      border: 1px solid var(--ciano);
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.2s, color 0.2s, transform 0.2s;
+      font-weight: bold;
+    }
+
+    .chapters li:hover, .episodes li:hover {
+      background-color: var(--ciano);
+      color: var(--preto);
+      transform: scale(1.05);
+    }
+
+    .hidden {
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+        header {
+            flex-direction: column;
+            padding: 1rem;
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        nav a {
+            margin: 0 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .content {
+            padding: 1rem;
+        }
+        
+        .modal-content {
+            margin: 10% auto;
+            width: 95%;
+        }
+        
+        .menu-btn {
+          margin-right: 0;
+          position: absolute;
+          left: 1rem;
+          top: 1rem;
+        }
+    }
+    .fullscreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: var(--preto);
+      z-index: 9999;
+      padding: 2rem;
+      overflow-y: auto;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .fullscreen h3 {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 1.5rem;
+      color: var(--lima);
+      margin-top: 0;
+      text-align: center;
+    }
+    
+    .fullscreen button {
+      background-color: var(--ciano);
+      color: var(--preto);
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+      position: sticky;
+      top: 1rem;
+      z-index: 10000;
+    }
+    
+    .fullscreen button:hover {
+      background-color: var(--lima);
+    }
+    
+    #mangaPages img {
+      max-width: 100%;
+      display: block;
+      margin: 0 auto 1.5rem auto;
+      border: 2px solid var(--ciano);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    }
+    
+    #animeVideo {
+      width: 100%;
+      max-width: 800px;
+      border: 3px solid var(--ciano);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+    }
+    /* Adiciona espaçamento mais consistente em elementos de texto */
+h3, p, ul {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Centraliza o menu principal em telas maiores para melhor equilíbrio visual */
+@media (min-width: 769px) {
+  nav {
+    display: flex;
+    justify-content: center;
+    width: auto; /* Permite que a nav ocupe o espaço necessário */
+    flex-grow: 1; /* Permite que o menu preencha o espaço central */
+  }
+}
+
+/* Melhoria na acessibilidade e estética do modal */
+.modal-content {
+  margin: 5% auto;
+  padding: 2rem;
+  border: 3px solid var(--ciano);
+  width: 90%;
+  max-width: 700px;
+  border-radius: 15px;
+  color: var(--lima);
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+  transform: scale(1); /* remove a animação de pop-up para algo mais direto */
+  animation: none;
+}
+
+/* Novo estilo para o botão de fechar, mais impactante */
+.close {
+  color: var(--ciano);
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 2.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+  background: none;
+  border: none;
+  line-height: 1;
+}
+
+/* Animação para o botão de fechar, mais suave */
+.close:hover {
+  color: var(--lima);
+  transform: rotate(90deg) scale(1.1);
+}
+
+/* Garante que o iframe do vídeo seja sempre responsivo */
+#animeIframeContainer {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+}
+
+#animeIframeContainer iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+  </style>
+</head>
+<body>
+    <div class="fullscreen" id="mangaReaderSection" style="display:none;">
+  <button onclick="closeMangaReader()">Fechar</button>
+  <h3>Leitor de Mangá</h3>
+  <div id="mangaPages"></div>
+</div>
+<div class="fullscreen" id="videoPlayerSection" style="display:none;">
+  <button onclick="closeVideoPlayer()">Fechar</button>
+  <h3>Player</h3>
+  <div id="animeIframeContainer"></div>
+</div>
+<div class="sidebar" id="sidebar">
+  <h3>Categorias</h3>
+  <a onclick="filterCategory('all')">Em Alta</a>
+  <a onclick="filterCategory('shonen')">Shonen</a>
+  <a onclick="filterCategory('isekai')">Isekai</a>
+  <a 
+onclick="filterCategory('drama')">Drama</a>
+</div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<header>
+  <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+  <h1>cometa_nime</h1>
+  <nav>
+    <a onclick="filterType('manga')">Ler Mangá</a>
+    <a onclick="filterType('anime')">Assistir Anime</a>
+    <a onclick="filterType('all')">Todos</a>
+  </nav>
+</header>
+
+<div class="content">
+    <div class="card anime shonen" onclick="openModal('kimetsu no yaiba', 'um garoto que quer tornar a irmã dele humana novamente.', 'anime')">
+  <img src="https://upload.wikimedia.org/wikipedia/pt/4/45/Kimetsu_no_Yaiba_%28capa_do_volume_1%29.png" alt="Demon Slayer">
+  <h3>Kimetsu No Yaiba</h3>
+</div>
+    <div class="card anime shonen" onclick="openModal('Naruto', 'Um ninja que quer ser Hokage.', 'anime')">
+  <img src="https://upload.wikimedia.org/wikipedia/pt/d/d2/Naruto_vol._01.jpg" alt="Naruto">
+  <h3>Naruto</h3>
+</div>
+
+<div class="card anime drama" onclick="openModal('Death Note', 'Um caderno que mata.', 'anime')">
+  <img src="https://upload.wikimedia.org/wikipedia/pt/c/c0/Death_Note_vol._01.jpg" alt="Death Note">
+  <h3>Death Note</h3>
+</div>
+<div class="card manga drama" onclick="openModal('juujika no rokunin', 'uma jornada em busca de uma vingança', 'manga')">
+  <img src="https://upload.wikimedia.org/wikipedia/en/6/65/Juujika_no_Rokunin_1.jpg" alt="juujika no rokunin">
+  <h3>Juujika No Rokunin</h3>
+</div>
+  <div class="card manga drama" onclick="openModal('Tomie', 'uma linda garota com um mistério por trás', 'manga')">
+    <img src="https://mangadex.org/covers/9ad2d9a1-8e01-48f6-b979-a03b1050a2bd/7557e573-b89d-4efd-b704-855feb0cec4c.jpg" alt="Tomie">
+    <h3>Tomie</h3>
+  </div>
+  <div class="card anime shonen" onclick="openModal('Takopiii Original Sin', 'um animal que apenas quer ver geral feliz', 'anime')">
+    <img src="https://upload.wikimedia.org/wikipedia/en/4/48/Takopi%27s_Original_Sin_1.png" alt="Takopi's Original Sin">
+    <h3>Takopi's Original Sin</h3>
+  </div>
+</div>
+
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <p id="modalDescription"></p>
+    <div class="chapters" id="chaptersSection">
+      <h3>Capítulos</h3>
+      <ul id="chaptersList"></ul>
+    </div>
+    <div class="episodes" id="episodesSection">
+      <h3>Episódios</h3>
+      <ul id="episodesList"></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  const mangaData = {
+    "Tomie": {
+      chapters: {
+        1: [
+          "https://i.imgur.com/6yItPDY.jpeg",
+          "https://i.imgur.com/2ri4PYf.png",
+          "https://i.imgur.com/9IjneWd.jpeg",
+          "https://i.imgur.com/4sh89zz.jpeg",
+          "https://i.imgur.com/sPO4CSM.png",
+          "https://i.imgur.com/6wpm9gD.png",
+          "https://i.imgur.com/sMAkYzp.png",
+          "https://i.imgur.com/VONF6E5.png",
+          "https://i.imgur.com/iFg3zCX.png",
+          "https://i.imgur.com/kCXdCEQ.png",
+          "https://i.imgur.com/GpvKNZ9.png",
+          "https://i.imgur.com/aSahr9z.png",
+          "https://i.imgur.com/2kp4VSq.png",
+          "https://i.imgur.com/yRcz30X.png",
+          "https://i.imgur.com/Xw7DWDO.png",
+          "https://i.imgur.com/VPNAdo3.png",
+          "https://i.imgur.com/YryyNy6.png",
+          "https://i.imgur.com/ThHaJe0.png",
+          "https://i.imgur.com/EvjjHqa.png",
+          "https://i.imgur.com/rZYqBlL.png",
+          "https://i.imgur.com/2CjKHBp.png",
+          "https://i.imgur.com/WQzhWI1.png",
+          "https://i.imgur.com/oBdnlCC.png",
+          "https://i.imgur.com/fwf9VF5.png",
+          "https://i.imgur.com/ePDzfRA.png",
+          "https://i.imgur.com/imHZkiP.png",
+          "https://i.imgur.com/HHuKKVx.png",
+          "https://i.imgur.com/jw34KVD.png",
+          "https://i.imgur.com/cSzO6Ga.png",
+          "https://i.imgur.com/43TqJfx.png",
+          "https://i.imgur.com/bfDZgzM.png",
+          "https://i.imgur.com/LukdfG9.png",
+          "https://i.imgur.com/cdh8MS9.png"                   
+        ],
+        2:[
+            ""
+        ]
+      }
+    }
+  };
+
+  function openMangaReader(title, chapter) {
+    hideMainContent();
+    const reader = document.getElementById('mangaReaderSection');
+    const pages = document.getElementById('mangaPages');
+    pages.innerHTML = '';
+    const images = mangaData[title]?.chapters[chapter];
+    if (images && images.length > 0) {
+      images.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        pages.appendChild(img);
+      });
+    } else {
+      pages.innerHTML = `<p style="text-align:center;">Nenhuma página encontrada para ${title} Capítulo ${chapter}</p>`;
+    }
+    reader.style.display = 'flex';
+  }
+
+  function closeMangaReader() {
+    document.getElementById('mangaReaderSection').style.display = 'none';
+    showMainContent();
+  }
+  const animeData = {
+  "Takopiii no Genzai": {
+    episodes: {
+      1: "x9o1xzu", 
+      2: "x9o257e",
+      3: "ID_DO_EPISODIO_3"
+    }
+  },
+  "OutroAnime": {
+    episodes: {
+      1: "ID_EP1",
+      2: "ID_EP2"
+    }
+  }
+};
+
+  function playAnimeVideo(dailymotionId) {
+  hideMainContent();
+  const player = document.getElementById('videoPlayerSection');
+  const container = document.getElementById('animeIframeContainer');
+  container.innerHTML = '';
+
+  const iframe = document.createElement('iframe');
+  iframe.src = `https://geo.dailymotion.com/player.html?video=${dailymotionId}`;
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.position = 'absolute';
+  iframe.style.left = '0px';
+  iframe.style.top = '0px';
+  iframe.style.overflow = 'hidden';
+  iframe.style.border = 'none';
+
+  iframe.allowFullscreen = true;
+  iframe.title = 'Dailymotion Video Player';
+  iframe.allow = 'web-share';
+
+  container.appendChild(iframe);
+  player.style.display = 'flex';
+}
+
+  function closeVideoPlayer() {
+    const player = document.getElementById('videoPlayerSection');
+    const container = document.getElementById('animeIframeContainer');
+    container.innerHTML = '';
+    player.style.display = 'none';
+    showMainContent();
+  }
+
+  function hideMainContent() {
+    document.querySelector('header').style.display = 'none';
+    document.querySelector('.content').style.display = 'none';
+  }
+
+  function showMainContent() {
+    document.querySelector('header').style.display = 'flex';
+    document.querySelector('.content').style.display = 'grid';
+  }
+
+  function openModal(title, description, type) {
+  document.getElementById('modalTitle').innerText = title;
+  document.getElementById('modalDescription').innerText = description;
+
+  document.getElementById('chaptersSection').style.display = 'none';
+  document.getElementById('episodesSection').style.display = 'none';
+
+  document.getElementById('mangaReaderSection').style.display = 'none';
+  document.getElementById('videoPlayerSection').style.display = 'none';
+
+  if (type === 'manga') {
+    document.getElementById('chaptersSection').style.display = 'block';
+    const list = document.getElementById('chaptersList');
+    list.innerHTML = '';
+    const chapters = mangaData[title]?.chapters;
+    if (chapters) {
+      Object.keys(chapters).forEach(chapterNum => {
+        const li = document.createElement('li');
+        li.innerText = `Capítulo ${chapterNum}`;
+        li.onclick = () => {
+          closeModal();
+          openMangaReader(title, chapterNum);
+        };
+        list.appendChild(li);
+      });
+    }
+  } else if (type === 'anime') {
+    document.getElementById('episodesSection').style.display = 'block';
+    const list = document.getElementById('episodesList');
+    list.innerHTML = '';
+    // Aqui você coloca cada episódio com seu ID correto:
+    const episodes = [
+      { number: 1, id: 'x9o1xzu' }, // EP 1
+      { number: 2, id: 'x9o257e' }  // EP 2
+    ];
+
+    episodes.forEach(ep => {
+      const li = document.createElement('li');
+      li.innerText = `Episódio ${ep.number}`;
+      li.onclick = () => {
+        closeModal();
+        playAnimeVideo(ep.id); // Vai passar o ID certo pra função!
+      };
+      list.appendChild(li);
+    });
+  }
+
+  document.getElementById('myModal').style.display = 'block';
+}
+
+  function closeModal() {
+    document.getElementById('myModal').style.display = 'none';
+  }
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  }
+
+  let activeType = 'all';
+
+  function filterType(type) {
+    activeType = type;
+    applyFilter();
+  }
+
+  function filterCategory(category) {
+    toggleSidebar();
+    applyFilter(category);
+  }
+
+  function applyFilter(category = 'all') {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+      let show = true;
+      if (activeType !== 'all' && !card.classList.contains(activeType)) show = false;
+      if (category !== 'all' && !card.classList.contains(category)) show = false;
+      card.style.display = show ? '' : 'none';
+    });
+  }
+
+  window.onclick = function (event) {
+    const modal = document.getElementById('myModal');
+    if (event.target == modal) {
+      closeModal();
+    }
+  };
+</script>
+</body>
+</html>
